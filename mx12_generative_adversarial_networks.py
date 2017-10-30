@@ -51,7 +51,7 @@ netD.initialize(mx.init.Normal(0.02), ctx=CTX)
 # """Setting up the training loop"""
 
 real_label = mx.nd.ones((batch_size,), ctx=CTX)
-fake_label = mx.nd.zeros((batch_size,), ctx=CTX)
+generated_label = mx.nd.zeros((batch_size,), ctx=CTX)
 metric = mx.metric.Accuracy()
 
 # trainer for the generator and the discriminator
@@ -83,22 +83,22 @@ for epoch in range(10):
             real_output = netD(data)
             errD_real = loss(real_output, real_label)
   
-            fake = netG(noise)
-            fake_output = netD(fake.detach())
-            errD_fake = loss(fake_output, fake_label)
-            errD = errD_real + errD_fake
+            generated = netG(noise)
+            generated_output = netD(generated.detach())
+            errD_generated = loss(generated_output, generated_label)
+            errD = errD_real + errD_generated
   
             errD.backward()
 
         trainerD.step(batch_size)
         metric.update([real_label,], [real_output])
-        metric.update([fake_label,], [fake_output])
+        metric.update([generated_label,], [generated_output])
 
         ############################
         # (2) Update G network: maximize log(D(G(z)))
         ###########################
         with autograd.record():
-            output = netD(fake)
+            output = netD(generated)
             errG = loss(output, real_label)
             errG.backward()
 
@@ -109,18 +109,18 @@ for epoch in range(10):
     print('\nbinary training acc at epoch %d: %s=%f' % (epoch, name, acc))
     print('time: %f' % (time.time() - tic))
     noise = nd.random_normal(shape=(100, 2), ctx=CTX)
-    fake = netG(noise)
+    generated = netG(noise)
     #pyplot.scatter(X[:, 0].asnumpy(),X[:,1].asnumpy())
-    #pyplot.scatter(fake[:,0].asnumpy(),fake[:,1].asnumpy())
+    #pyplot.scatter(generated[:,0].asnumpy(),generated[:,1].asnumpy())
     #pyplot.title("Iteration " + `epoch`)
     #pyplot.show()
 
 # Check it one last time        
 noise = mx.nd.random_normal(shape=(100, 2), ctx=ctx)
-fake = netG(noise)
+generated = netG(noise)
 
-pyplot.title("Fake data on top")
+pyplot.title("generated data on top")
 plt.scatter(X[:, 0].asnumpy(),X[:,1].asnumpy())
-plt.scatter(fake[:,0].asnumpy(),fake[:,1].asnumpy())
+plt.scatter(generated[:,0].asnumpy(),generated[:,1].asnumpy())
 plt.show()
 
