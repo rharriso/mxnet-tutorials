@@ -12,7 +12,7 @@ from mxnet.gluon import nn, utils
 from mxnet import autograd
 import numpy as np
 
-epochs = 3  # set dow by default for tests, set higher when you actual run
+epochs = 100  # set dow by default for tests, set higher when you actual run
 batch_size = 64
 image_width = 64
 image_height = 64
@@ -144,7 +144,7 @@ trainerG = gluon.Trainer(netG.collect_params(), 'adam', {
     'learning_rate': learning_rate,
     'beta1': beta1
 })
-trainerD = gluon.Trainer(netG.collect_params(), 'adam', {
+trainerD = gluon.Trainer(netD.collect_params(), 'adam', {
     'learning_rate': learning_rate,
     'beta1': beta1
 })
@@ -250,3 +250,8 @@ for i in range(num_image):
     latent_z += 0.05
 plt.show()
 
+#
+# save model
+# 
+netG.save_params("mx13-models/generative-model-" + `epochs`)
+netD.save_params("mx13-models/descriminative-model" + `epochs`)
