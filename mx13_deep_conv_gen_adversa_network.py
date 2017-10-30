@@ -12,7 +12,7 @@ from mxnet.gluon import nn, utils
 from mxnet import autograd
 import numpy as np
 
-epochs = 2  # set dow by default for tests, set higher when you actual run
+epochs = 3  # set dow by default for tests, set higher when you actual run
 batch_size = 64
 image_width = 64
 image_height = 64
@@ -81,10 +81,9 @@ train_data = mx.io.NDArrayIter(
 #plt.show()
 
 print("building generator and descriminator")
-#
+
 # build the generator
-#
-num_color = 3
+nc = 3
 ngf = 64
 netG = nn.Sequential()
 with netG.name_scope():
@@ -101,34 +100,34 @@ with netG.name_scope():
     netG.add(nn.BatchNorm())
     netG.add(nn.Activation('relu'))
     # state size. (ngf*8) x 16 x 16
-    netG.add(nn.Conv2DTranspose(ngf * 4, 4, 2, 1, use_bias=False))
+    netG.add(nn.Conv2DTranspose(ngf, 4, 2, 1, use_bias=False))
     netG.add(nn.BatchNorm())
     netG.add(nn.Activation('relu'))
     # state size. (ngf*8) x 32 x 32
-    netG.add(nn.Conv2DTranspose(ngf * 4, 4, 2, 1, use_bias=False))
-    netG.add(nn.BatchNorm())
+    netG.add(nn.Conv2DTranspose(nc, 4, 2, 1, use_bias=False))
     netG.add(nn.Activation('tanh'))
-    # state size. (ngf*8) x 64 x 64
+    # state size. (nc) x 64 x 64
 
+# build the discriminator
 ndf = 64
 netD = nn.Sequential()
 with netD.name_scope():
-    # input is (num_color) x 64 x 64
+    # input is (nc) x 64 x 64
     netD.add(nn.Conv2D(ndf, 4, 2, 1, use_bias=False))
     netD.add(nn.LeakyReLU(0.2))
-    # state-size (ndf) x 32 x 32
+    # state size. (ndf) x 32 x 32
     netD.add(nn.Conv2D(ndf * 2, 4, 2, 1, use_bias=False))
     netD.add(nn.BatchNorm())
     netD.add(nn.LeakyReLU(0.2))
-    # state-size (ndf) x 16 x 16
+    # state size. (ndf) x 16 x 16
     netD.add(nn.Conv2D(ndf * 4, 4, 2, 1, use_bias=False))
     netD.add(nn.BatchNorm())
     netD.add(nn.LeakyReLU(0.2))
-    # state-size (ndf) x 8 x 8
+    # state size. (ndf) x 8 x 8
     netD.add(nn.Conv2D(ndf * 8, 4, 2, 1, use_bias=False))
     netD.add(nn.BatchNorm())
     netD.add(nn.LeakyReLU(0.2))
-    # state-size (ndf) x 4 x 4
+    # state size. (ndf) x 4 x 4
     netD.add(nn.Conv2D(1, 4, 1, 0, use_bias=False))
 
 #
@@ -160,12 +159,12 @@ import time
 import logging
 
 real_label = nd.ones((batch_size,), ctx=ctx)
-fake_label = nd.zeros((batch_size,), ctx=ctx)
+fake_label = nd.zeros((batch_size,),ctx=ctx)
 
 def facc(label, pred):
-    return (
-        (pred.ravel() > 0.5) == label.ravel()
-    ).mean()
+    pred = pred.ravel()
+    label = label.ravel()
+    return ((pred > 0.5) == label).mean()
 metric = mx.metric.CustomMetric(facc)
 
 stamp =  datetime.now().strftime('%Y_%m_%d-%H_%M')
@@ -176,55 +175,78 @@ for epoch in range(epochs):
     btic = time.time()
     train_data.reset()
     i = 0
-
     for batch in train_data:
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         ###########################
         data = batch.data[0].as_in_context(ctx)
-        latent_z = mx.nd.random_normal(0, 1,
-            shape=(batch_size, latent_z_size, 1, 1),
-            ctx=ctx)
+        latent_z = mx.nd.random_normal(0, 1, shape=(batch_size, latent_z_size, 1, 1), ctx=ctx)
 
-        
         with autograd.record():
             # train with real image
             output = netD(data).reshape((-1, 1))
             errD_real = loss(output, real_label)
             metric.update([real_label,], [output,])
 
-            #train with fake image
-            fake_image = netG(latent_z)
-            print(fake_image.shape())
-            output = netD(fake_image).reshape(-1, 1)
+            # train with fake image
+            fake = netG(latent_z)
+            output = netD(fake).reshape((-1, 1))
             errD_fake = loss(output, fake_label)
             errD = errD_real + errD_fake
             errD.backward()
             metric.update([fake_label,], [output,])
-        
+
         trainerD.step(batch.data[0].shape[0])
 
         ############################
         # (2) Update G network: maximize log(D(G(z)))
         ###########################
         with autograd.record():
-            fake_image = netG(latent_z)
-            output = netD(fake_image).reshape(-1, 1)
+            fake = netG(latent_z)
+            output = netD(fake).reshape((-1, 1))
             errG = loss(output, real_label)
             errG.backward()
-        
+
         trainerG.step(batch.data[0].shape[0])
 
-         # Print log infomation every ten batches
-        if iter % 10 == 0:
+        # Print log infomation every ten batches
+        if i % 10 == 0:
             name, acc = metric.get()
-            logging.info("speed: {} samples/s".format(batch_size / (time.time() - btic)))
-            logging.info("discriminator loss = %f, generator loss = %f, binary training acc = %f at iter %d epoch %d"
+            logging.info('speed: {} samples/s'.format(batch_size / (time.time() - btic)))
+            logging.info('discriminator loss = %f, generator loss = %f, binary training acc = %f at i %d epoch %d'
                      %(nd.mean(errD).asscalar(),
-                       nd.mean(errG).asscalar(), acc, iter, epoch))
-        
+                       nd.mean(errG).asscalar(), acc, i, epoch))
         i = i + 1
         btic = time.time()
-    
+
     name, acc = metric.get()
-    metric.reset
+    metric.reset()
+
+#
+# display some results after training
+#
+num_image = 8
+for i in range(num_image):
+    latent_z = mx.nd.random_normal(0, 1,
+      shape=(1, latent_z_size, 1, 1),
+      ctx=ctx
+    )
+    img = netG(latent_z)
+    plt.subplot(2,4,i+1)
+    visualize(img[0])
+plt.show()
+
+
+#
+# interpolate along a manifold
+#
+num_image = 12
+latent_z = mx.nd.random_normal(0, 1, shape=(1, latent_z_size, 1, 1), ctx=ctx)
+step = 0.05
+for i in range(num_image):
+    img = netG(latent_z)
+    plt.subplot(3,4,i+1)
+    visualize(img[0])
+    latent_z += 0.05
+plt.show()
+
