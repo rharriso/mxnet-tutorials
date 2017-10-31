@@ -12,7 +12,7 @@ from mxnet.gluon import nn, utils
 from mxnet import autograd
 import numpy as np
 
-epochs = 500  # set dow by default for tests, set higher when you actual run
+epochs = 1500  # set dow by default for tests, set higher when you actual run
 batch_size = 64
 image_width = 64
 image_height = 64
@@ -219,6 +219,14 @@ for epoch in range(epochs):
         i = i + 1
         btic = time.time()
 
+        if i % 100 === 0:
+            #
+            # save model
+            # 
+            logging.info('Saving models at epoch: {}'.format(epoch))
+            netG.save_params("mx13-models/generative-model-" + `epoch`)
+            netD.save_params("mx13-models/descriminative-model" + `epoch`)
+
     name, acc = metric.get()
     metric.reset()
 
@@ -250,8 +258,3 @@ for i in range(num_image):
     latent_z += 0.05
 plt.show()
 
-#
-# save model
-# 
-netG.save_params("mx13-models/generative-model-" + `epochs`)
-netD.save_params("mx13-models/descriminative-model" + `epochs`)
