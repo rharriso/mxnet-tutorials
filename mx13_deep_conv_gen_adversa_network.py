@@ -12,7 +12,7 @@ from mxnet.gluon import nn, utils
 from mxnet import autograd
 import numpy as np
 
-epochs = 100  # set dow by default for tests, set higher when you actual run
+epochs = 500  # set dow by default for tests, set higher when you actual run
 batch_size = 64
 image_width = 64
 image_height = 64
