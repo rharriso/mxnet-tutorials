@@ -219,13 +219,12 @@ for epoch in range(epochs):
         i = i + 1
         btic = time.time()
 
-        if i % 100 == 0:
-            #
-            # save model
-            # 
-            logging.info('Saving models at epoch: {}'.format(epoch))
-            netG.save_params("mx13-models/generative-model-" + `epoch`)
-            netD.save_params("mx13-models/descriminative-model" + `epoch`)
+    #
+    # save model after epoch
+    # 
+    logging.info('Saving models at epoch: {}'.format(epoch))
+    netG.save_params("mx13-models/generative-model-" + `epoch`)
+    netD.save_params("mx13-models/descriminative-model" + `epoch`)
 
     name, acc = metric.get()
     metric.reset()
