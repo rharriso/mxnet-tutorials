@@ -53,7 +53,7 @@ latent_z_size = 100
 latent_z = mx.nd.random_normal(0, 1, shape=(1, latent_z_size, 1, 1), ctx=ctx)
 step = 0.05
 
-for i in range(5):
+for i in range(10):
     num_image = 12
     latent_z = mx.nd.random_normal(0, 1, shape=(1, latent_z_size, 1, 1), ctx=ctx)
     step = 0.05

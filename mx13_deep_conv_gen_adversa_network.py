@@ -219,7 +219,7 @@ for epoch in range(epochs):
         i = i + 1
         btic = time.time()
 
-        if i % 100 === 0:
+        if i % 100 == 0:
             #
             # save model
             # 
