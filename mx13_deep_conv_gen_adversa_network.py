@@ -136,6 +136,7 @@ with netD.name_scope():
 #
 loss = gluon.loss.SigmoidBinaryCrossEntropyLoss()
 
+
 # init gen and discrim with normal sample
 #netG.initialize(mx.init.Normal(0.02), ctx=ctx)
 netG.load_params("mx13-models/generative-model-500", ctx=ctx)
