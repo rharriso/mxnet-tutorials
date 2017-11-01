@@ -41,9 +41,6 @@ with netG.name_scope():
     netG.add(nn.Activation('tanh'))
     # state size. (nc) x 64 x 64
 netG.initialize(mx.init.Normal(0.02), ctx=ctx)
-time.sleep(1)
-netG.load_params("mx13-models/generative-model-100", ctx=ctx)
-time.sleep(1)
 
 #
 # interpolate along a manifold
@@ -53,7 +50,10 @@ latent_z_size = 100
 latent_z = mx.nd.random_normal(0, 1, shape=(1, latent_z_size, 1, 1), ctx=ctx)
 step = 0.05
 
-for i in range(10):
+for model in range(0, 450, 50):
+    time.sleep(1)
+    netG.load_params("mx13-models/generative-model-{}".format(model), ctx=ctx)
+    time.sleep(1)
     num_image = 12
     latent_z = mx.nd.random_normal(0, 1, shape=(1, latent_z_size, 1, 1), ctx=ctx)
     step = 0.05
@@ -62,4 +62,5 @@ for i in range(10):
         plt.subplot(3,4,i+1)
         visualize(img[0])
         latent_z += 0.05
+    plt.suptitle('model: {}'.format(model))
     plt.show()

@@ -4,6 +4,7 @@ import matplotlib as mpl
 import tarfile
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
+import time
 
 import mxnet as mx
 from mxnet import gluon
@@ -136,8 +137,10 @@ with netD.name_scope():
 loss = gluon.loss.SigmoidBinaryCrossEntropyLoss()
 
 # init gen and discrim with normal sample
-netG.initialize(mx.init.Normal(0.02), ctx=ctx)
-netD.initialize(mx.init.Normal(0.02), ctx=ctx)
+#netG.initialize(mx.init.Normal(0.02), ctx=ctx)
+netG.load_params("mx13-models/generative-model-500", ctx=ctx)
+#netD.initialize(mx.init.Normal(0.02), ctx=ctx)
+netD.load_params("mx13-models/descriminative-model500", ctx=ctx)
 
 # trainer for the gen and discrim
 trainerG = gluon.Trainer(netG.collect_params(), 'adam', {
@@ -170,7 +173,7 @@ metric = mx.metric.CustomMetric(facc)
 stamp =  datetime.now().strftime('%Y_%m_%d-%H_%M')
 logging.basicConfig(level=logging.DEBUG)
 
-for epoch in range(epochs):
+for epoch in range(500, epochs):
     tic = time.time()
     btic = time.time()
     train_data.reset()
@@ -222,7 +225,7 @@ for epoch in range(epochs):
     #
     # save model after epoch
     # 
-    if i % 50 == 0:
+    if  0 == epoch or epoch % 50 == 0:
         logging.info('Saving models at epoch: {}'.format(epoch))
         netG.save_params("mx13-models/generative-model-" + `epoch`)
         netD.save_params("mx13-models/descriminative-model" + `epoch`)
