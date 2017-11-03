@@ -50,7 +50,7 @@ latent_z_size = 100
 latent_z = mx.nd.random_normal(0, 1, shape=(1, latent_z_size, 1, 1), ctx=ctx)
 step = 0.05
 
-for model in range(400, 801, 200):
+for model in range(850, 1400, 50):
     time.sleep(1)
     netG.load_params("mx13-models/generative-model-{}".format(model), ctx=ctx)
     time.sleep(1)
