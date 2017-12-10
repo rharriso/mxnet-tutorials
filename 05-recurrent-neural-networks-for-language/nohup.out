@@ -1,0 +1,27 @@
+/home/rharriso/miniconda2/lib/python2.7/site-packages/urllib3/contrib/pyopenssl.py:46: DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead
+  import OpenSSL.SSL
+Traceback (most recent call last):
+  File "long-short-term-mem-lstm-rnn.py", line 221, in <module>
+    moving_loss = nd.mean(loss).asscalar()
+  File "/home/rharriso/miniconda2/lib/python2.7/site-packages/mxnet/ndarray.py", line 929, in asscalar
+    return self.asnumpy()[0]
+  File "/home/rharriso/miniconda2/lib/python2.7/site-packages/mxnet/ndarray.py", line 911, in asnumpy
+    ctypes.c_size_t(data.size)))
+KeyboardInterrupt
+/home/rharriso/miniconda2/lib/python2.7/site-packages/urllib3/contrib/pyopenssl.py:46: DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead
+  import OpenSSL.SSL
+Traceback (most recent call last):
+  File "long-short-term-mem-lstm-rnn.py", line 132, in <module>
+    vocab_size
+  File "long-short-term-mem-lstm-rnn.py", line 15, in one_hots
+    result[i, idx] = 1.0
+  File "/home/rharriso/miniconda2/lib/python2.7/site-packages/mxnet/ndarray.py", line 425, in __setitem__
+    scalar=value)
+  File "<string>", line 19, in _crop_assign_scalar
+  File "/home/rharriso/miniconda2/lib/python2.7/site-packages/mxnet/_ctypes/ndarray.py", line 89, in _imperative_invoke
+    c_array(ctypes.c_char_p, [c_str(str(val)) for val in vals])))
+  File "/home/rharriso/miniconda2/lib/python2.7/site-packages/mxnet/base.py", line 175, in c_array
+    def c_array(ctype, values):
+KeyboardInterrupt
+/home/rharriso/miniconda2/lib/python2.7/site-packages/urllib3/contrib/pyopenssl.py:46: DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead
+  import OpenSSL.SSL
